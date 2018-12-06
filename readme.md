@@ -2,6 +2,7 @@
 
 The `elvis` package implements a 'truthy', 'ternary' and a 'coalesce' operator to Nim as syntactic sugar for working with conditional expressions. 
 
+
 ### Truthy operator : `?`
 
 The `?` operator will try to convert any expression to a boolean. In general a value is considered false if it has not yet been initialised or isNil, none or throws an excpetion. 
@@ -18,14 +19,13 @@ These rules are currently implmented..
 | Any    | exception   | `assert(not(?{"one":1}.newTable["two"]))` | `assert ?{"one":1}.newTable["one"]`
 | nilable | isNil()   | `` | ``
 
-
 ### Elvis Operator: `?:`
 
 The elvis operator will return the left operand if it is 'truthy' otherwise it will return the right operand.
 
 See [null coalescing operator](https://en.wikipedia.org/wiki/Null_coalescing_operator) `?:` 
 
-Examples, Test and Implmentation ideas have been in part derived from 'https://github.com/piedar/coalesce'
+Examples, Test and Implmentation ideas have been in part derived from the Coalesce module ('https://github.com/piedar/coalesce'). This module should be prefered by those looking for a stricter implmentation of a Null coalescing operator, which does not accomdate a broader concept of 'truthy' values.
 
 Examples:
   - `assert ("" ?: "b") == "b"`
