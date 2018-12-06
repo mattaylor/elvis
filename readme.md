@@ -1,6 +1,6 @@
 # Elvis
 
-The `elvis` package implements a three operators for working with `truthy` values. 
+The `elvis` package implements a 'truthy', 'ternary' and a 'coalesce' operator to Nim as syntactic sugar for working with conditional expressions. 
 
 ### Truthy operator : `?`
 
