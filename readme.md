@@ -10,12 +10,12 @@ These rules are currently implmented..
 
 | type   | false |  falsy example  | truthy example 
 |--------|-------|----------|---------------
-| int    | 0     | `assert(not(?0)` | `assert ?1`  
-| float  | 0.0 or NaN   | `assert(not(?NaN)` | `assert ?1`
+| int    | 0     | `assert(not(?0))` | `assert ?1`  
+| float  | 0.0 or NaN   | `assert(not(?NaN))` | `assert ?1.1`
 | string | ""    | `assert(not(?""))` | `assert ?"0"`
-| seq[T] | @[]   | `var s:seq[int]; assert(not(?s))` | `assert @[0]`
+| seq[T] | @[]   | `var s:seq[int]; assert(not(?s))` | `assert ?(@[0])`
 | option[T] | none   | `assert(not(none(string))` | `assert ?some("")`
-| expression | exception   | `assert(not(?{ "one": 1 }.newTable["two"]))` | `assert ?{ "one": 1 }.newTable["one"]`
+| Any    | exception   | `assert(not(?{ "one": 1 }.newTable["two"]))` | `assert ?{ "one": 1 }.newTable["one"]`
 | nilable | isNil()   | `` | ``
 
 
@@ -42,7 +42,7 @@ The Ternary operator will return the  middle operand if the left operand evaluat
 
 This implementation was taken from Arak's suggestion on from https://forum.nim-lang.org/t/3342
 
-Note: Due to compiler limitations the '!' operation is evaluated eagerly. 
+Note: Due to compiler limitations the '!' operation is implemented as a proc and is evaluated eagerly. 
 
 Examples:
 - `assert (true ? "a" ! "b") == "a"`
