@@ -25,7 +25,7 @@ The elvis operator will return the left operand if it is 'truthy' otherwise it w
 
 See [null coalescing operator](https://en.wikipedia.org/wiki/Null_coalescing_operator) `?:` 
 
-Examples and implmentation ideas have been in part derived from 'https://github.com/piedar/coalesce'
+Examples, Test and Implmentation ideas have been in part derived from 'https://github.com/piedar/coalesce'
 
 Examples:
   - `assert ("" ?: "b") == "b"`
