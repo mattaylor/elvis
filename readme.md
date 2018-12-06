@@ -15,7 +15,7 @@ These rules are currently implmented..
 | string | ""    | `assert(not(?""))` | `assert ?"0"`
 | seq[T] | @[]   | `var s:seq[int]; assert(not(?s))` | `assert ?(@[0])`
 | option[T] | none   | `assert(not(none(string))` | `assert ?some("")`
-| Any    | exception   | `assert(not(?{ "one": 1 }.newTable["two"]))` | `assert ?{ "one": 1 }.newTable["one"]`
+| Any    | exception   | `assert(not(?{"one":1}.newTable["two"]))` | `assert ?{"one":1}.newTable["one"]`
 | nilable | isNil()   | `` | ``
 
 
