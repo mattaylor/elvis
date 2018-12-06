@@ -1,7 +1,7 @@
 # Package
 version       = "0.1.0"
 author        = "Mat Taylor"
-description   = "return the first truthy value that exists"
+description   = "truthy, elvis and ternary operators for nim"
 license       = "MIT"
 
 # Dependencies
