@@ -1,6 +1,6 @@
 # Elvis
 
-The `elvis` package implements a 'truthy', 'ternary' and a 'coalesce' operator to Nim as syntactic sugar for working with conditional expressions. 
+The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator to Nim as syntactic sugar for working with conditional expressions using more than just boolean types. 
 
 
 ### Truthy operator : `?`
@@ -38,7 +38,7 @@ Longer chains work too, and the expression short-circuits if possible.
 
 ### Ternary Operator : `? !`
 
-The Ternary operator will return the  middle operand if the left operand evaluates to true otherwise it will return the right operand.
+The Ternary operator will return the  middle operand if the left operand evaluates as truthy otherwise it will return the right operand.
 
 This implementation was taken from Arak's suggestion on from https://forum.nim-lang.org/t/3342
 
@@ -47,3 +47,21 @@ Note: Due to compiler limitations the '!' operation is implemented as a proc and
 Examples:
 - `assert (true ? "a" ! "b") == "a"`
 - `assert (false ? "a" ! "b") == "b"`
+- `assert ("c" ? "a" ! "b") == "a"`
+- `assert ("" ? "a" ! "b") == "b"`
+
+### Conditional Assignment Operator : `?=`
+
+The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as Truthy
+
+Examples:
+```
+var s:string
+s ?= "a" 
+assert (s == "a")
+s ?= "b"
+assert (s == "a")
+```
+
+### Conditional Access Operator : `?.`
+__TBD__

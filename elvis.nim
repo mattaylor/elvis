@@ -3,10 +3,6 @@ import options
 type BranchPair[T] = object
   then, other: T
 
-# from Arak https://forum.nim-lang.org/t/3342
-proc `!`*[T](a, b: T): BranchPair[T] {.inline.} = BranchPair[T](then: a, other: b)
-
-template `?`*[T](cond: bool; p: BranchPair[T]): T = (if cond: p.then else: p.other)
 
 #true if not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
@@ -34,13 +30,31 @@ template `?`*[T](val: T): bool = (try: truthy(val) except: false)
 
 # return left if truthy and unexcpetional otherwise right
 template `?:`*[T](left: T, right: T): T = 
-  if ?left: left else: right
+  (if ?left: left else: right)
 
 template `?:`*[T](left: T, right: Option[T]): Option[T] = 
-  if ?left: some(left) else: right
+  (if ?left: some(left) else: right)
  
 template `?:`*[T](left: Option[T], right: T): T = 
   if ?left.get(): left.get() else: right
+
+# Conditional Assignment
+template `?=`*[T](left: T, right: T) = 
+  if not(?left): left = right
+  
+#Conditional acess (WIP)
+#[
+template `?.`*[T,U,V](left: T, right: proc (x: T,y: U): V): V =
+  if ?left: right(left) else: (var r:V)
+
+template `?.`*[T,U](left: T, right: U): U =
+  if ?left: left.right else: (var r:U)
+]#
+
+# from Arak https://forum.nim-lang.org/t/3342
+template `?`*[S,T](cond: S; p: BranchPair[T]): T = (if ?cond: p.then else: p.other)
+
+proc `!`*[T](a, b: T): BranchPair[T] {.inline.} = BranchPair[T](then: a, other: b)
 
 when isMainModule:
   import unittest
@@ -52,6 +66,9 @@ when isMainModule:
   template `==`[T](left: T, right: Option[T]): bool =
     right == left
 
+  let tab = { "one": 1 }.newTable
+  let seq1 = @["one"]
+    
   suite "truthy": 
     var s0: string
     var a0: seq[string]
@@ -70,9 +87,27 @@ when isMainModule:
   suite "ternary":
     test "true": check((false ? "a" ! "b") == "b")
     test "false": check((true ? "a" ! "b") == "a")
-    test "false truthy": check((?0 ? "a" ! "b") == "b")
-    test "true truthy": check((?1 ? "a" ! "b") == "a")
+    test "falsy": check((0 ? "a" ! "b") == "b")
+    test "truthy": check((1 ? "a" ! "b") == "a")
  
+  suite "conditional assign":
+    test "falsy assign":
+      var i0 = 0
+      i0 ?= 2
+      check(i0 == 2)
+    test "truthy assign": 
+      var i1 = 1
+      i1 ?= 2
+      check(i1 == 1)
+
+  #[
+  suite "conditional access":
+    test "truthy getter": check seq1[0]?.len == 3
+  #  test "falsy getter": check seq1[1]?.len == 0
+  #  test "truthy call":
+  #  test "falsy call":
+  ]#
+
   suite "elvis number": 
     test "zero left": check((0 ?: 1) == 1)
     test "good left": check((1 ?: 2) == 1)
@@ -95,7 +130,6 @@ when isMainModule:
     test "good  left": check(("good" ?: "empty") == "good")
 
   suite "elvis except":
-    let tab = { "one": 1 }.newTable
     test "none left": check((tab["two"] ?: 0) == 0)
     test "good left": check((tab["one"] ?: 0) == 1)
     
