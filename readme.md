@@ -1,7 +1,6 @@
 # Elvis
 
-The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator to Nim as syntactic sugar for working with conditional expressions using more than just boolean types. 
-
+The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator and an experimental __conditional access operator__ (`?.`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
 
 ### Truthy operator : `?`
 
@@ -28,35 +27,45 @@ See [null coalescing operator](https://en.wikipedia.org/wiki/Null_coalescing_ope
 
 Examples, Test and Implmentation ideas have been in part derived from the Coalesce module ('https://github.com/piedar/coalesce'). That module should be prefered by those looking for a stricter implmentation of a Null coalescing operator, but the implmentation here may be more usefull especially now that stings are not nilable (from Nim 0.19)
 
-Examples:
-  - `assert ("" ?: "b") == "b"`
-  - `assert (0 ?: 1) == 1`
-  - `assert (none(int) ?: 1) == 1`
+__Examples:__
+
+```nim
+assert ("" ?: "b") == "b"
+assert (0 ?: 1) == 1
+assert (none(int) ?: 1) == 1
+```
 
 Longer chains work too, and the expression short-circuits if possible.
 
-  eg `let result = tryComputeFast(input) ?: tryComputeSlow(input) ?: myDefault`
+eg. 
+```nim
+let result = tryComputeFast(input) ?: tryComputeSlow(input) ?: myDefault
+```
 
 ### Ternary Operator : `? !`
 
 The Ternary operator will return the  middle operand if the left operand evaluates as truthy otherwise it will return the right operand.
 
-This implementation was taken from Arak's suggestion on from https://forum.nim-lang.org/t/3342
+This implementation was taken from Araq's suggestion on from https://forum.nim-lang.org/t/3342
 
 Note: Due to compiler limitations the '!' operation is implemented as a proc and is evaluated eagerly. 
 
-Examples:
-- `assert (true ? "a" ! "b") == "a"`
-- `assert (false ? "a" ! "b") == "b"`
-- `assert ("c" ? "a" ! "b") == "a"`
-- `assert ("" ? "a" ! "b") == "b"`
+__Examples:__
+
+```nim
+assert (true ? "a" ! "b") == "a"
+assert (false ? "a" ! "b") == "b"
+assert ("c" ? "a" ! "b") == "a"
+assert ("" ? "a" ! "b") == "b"
+```
 
 ### Conditional Assignment Operator : `?=`
 
 The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as Truthy
 
-Examples:
-```
+__Examples:__
+
+```nim
 var s:string
 s ?= "a" 
 assert (s == "a")
@@ -65,4 +74,13 @@ assert (s == "a")
 ```
 
 ### Conditional Access Operator : `?.`
-__TBD__
+
+The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned.
+
+__Example:__
+
+```nim
+ let s = @["one"]
+ assert((s[0]?.len) == 3)
+ assert((s[1]?.len) == 0)
+```

@@ -16,11 +16,7 @@ let str1 = ""
 let seq1 = @["one"]
 let tab1 = { "one": 1 }.newTable
 
-  
 suite "truthy": 
-  #var s0: string
-  #var c0: char
-  #var a0: seq[string]
   test "empty string": check(not(?""))
   test "zero float": check(not ?0.0)
   test "NaN float": check(not ?NaN)
@@ -51,13 +47,10 @@ suite "conditional assign":
     i1 ?= 2
     check(i1 == 1)
 
-#[
+
 suite "conditional access":
-  test "truthy getter": check seq1[0]?.len == 3
-#  test "falsy getter": check seq1[1]?.len == 0
-#  test "truthy call":
-#  test "falsy call":
-]#
+  test "truthy getter": check((seq1[0]?.len) == 3)
+  test "falsy getter": check((seq1[1]?.len) == 0)
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)
