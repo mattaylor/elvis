@@ -8,4 +8,4 @@ license       = "MIT"
 requires "nim >= 0.17.0"
 
 # Tasks
-task test, "run tests": exec "nim c -r elvis.nim"
+task test, "run tests": exec "nim c -r tests.nim"
