@@ -13,6 +13,7 @@ These rules are currently implmented..
 |--------|-------|----------|---------------
 | int    | 0     | `assert(not(?0))` | `assert ?1`  
 | float  | 0.0 or NaN   | `assert(not(?NaN))` | `assert ?1.1`
+| char   | \0    | `assert(not(?'\0'))` | `assert ?'0'`
 | string | ""    | `assert(not(?""))` | `assert ?"0"`
 | seq[T] | @[]   | `var s:seq[int]; assert(not(?s))` | `assert ?(@[0])`
 | option[T] | none   | `assert(not(none(string)))` | `assert ?some("")`

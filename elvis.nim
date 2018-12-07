@@ -10,6 +10,9 @@ template truthy*(val: float): bool  = (val < 0 or val > 0)
 #true if not 0
 template truthy*(val: int): bool  = (val != 0)
 
+#try if not \0
+template truthy*(val: char): bool = val != '\0'
+
 #true if true
 template truthy*(val: bool): bool = val
 
@@ -71,10 +74,13 @@ when isMainModule:
     
   suite "truthy": 
     var s0: string
+    var c0: char
     var a0: seq[string]
     test "empty string": check(not(truthy("")))
     test "zero float": check(not ?0.0)
     test "NaN float": check(not ?NaN)
+    test "\0 char": check(not ?c0)
+    test "not \0 char": check(?'0')
     test "zero int": check(not ?0)
     test "empty seq": check(not ?a0)
     test "none option": check(not ?none(string))
