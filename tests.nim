@@ -65,7 +65,7 @@ suite "elvis number":
   test "expr left": check(((1 - 1) ?: 1) == 1)
   
 suite "elvis sequence":
-  test "empty left": check((seq0 ?:  @[1]) == @[1])
+  test "empty left": check((seq0 ?: @[1]) == @[1])
   test "good  left": check((@[0] ?: @[1]) == @[0])
 
 suite "elvis except":

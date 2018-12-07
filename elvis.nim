@@ -1,8 +1,7 @@
 import options
 
-type BranchPair[T] = object
+type Branch[T] = object
   then, other: T
-
 
 #true if not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
@@ -31,19 +30,16 @@ template truthy*[T](val: Option[T]): bool = isSome(val)
 # like truthy but also returns false on an exception.
 template `?`*[T](val: T): bool = (try: truthy(val) except: false)
 
-# return left if truthy and unexcpetional otherwise right
-template `?:`*[T](left: T, right: T): T = 
-  if ?left: left else: right
+# return left if truthy otherwise right
+template `?:`*[T](l: T, r: T): T = (if ?l: l else: r)
 
-template `?:`*[T](left: T, right: Option[T]): Option[T] = 
-  if ?left: some(left) else: right
+# return some left if truthy otherwise right
+template `?:`*[T](l: T, r: Option[T]): Option[T] = (if ?l: some(l) else: r)
  
-template `?:`*[T](left: Option[T], right: T): T = 
-  if ?left.get(): left.get() else: right
+template `?:`*[T](l: Option[T], r: T): T = (if ?l.get(): l.get() else: r)
 
 # Conditional Assignment
-template `?=`*[T](left: T, right: T) = 
-  if not(?left): left = right
+template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
   
 #Conditional acess (WIP)
 #[
@@ -55,8 +51,8 @@ template `?.`*[T,U](left: T, right: U): U =
 ]#
 
 # from Arak https://forum.nim-lang.org/t/3342
-template `?`*[S,T](cond: S; p: BranchPair[T]): T = (if ?cond: p.then else: p.other)
+template `?`*[S,T](c: S; p: Branch[T]): T = (if ?c: p.then else: p.other)
 
-proc `!`*[T](a, b: T): BranchPair[T] {.inline.} = BranchPair[T](then: a, other: b)
+proc `!`*[T](a, b: T): Branch[T] {.inline.} = Branch[T](then: a, other: b)
 
 when isMainModule: import tests
