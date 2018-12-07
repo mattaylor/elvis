@@ -2,7 +2,7 @@
 
 The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator and an experimental __conditional access operator__ (`?.`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
 
-### Truthy operator : `?`
+### Truthy operator  `?`
 
 The `?` operator will try to convert any expression to a boolean. In general a value is considered false if it has not yet been initialised or isNil, none or throws an excpetion. 
 
@@ -19,7 +19,7 @@ These rules are currently implmented..
 | Any    | exception   | `assert(not(?{"one":1}.newTable["two"]))` | `assert ?{"one":1}.newTable["one"]`
 | nilable | isNil()   | `` | ``
 
-### Elvis Operator: `?:`
+### Elvis Operator `?:`
 
 The elvis operator will return the left operand if it is 'truthy' otherwise it will return the right operand.
 
@@ -33,6 +33,8 @@ __Examples:__
 assert ("" ?: "b") == "b"
 assert (0 ?: 1) == 1
 assert (none(int) ?: 1) == 1
+assert (1 ?: 2) == 1
+assert ("1" ?: "2") == "1"
 ```
 
 Longer chains work too, and the expression short-circuits if possible.
@@ -42,7 +44,7 @@ eg.
 let result = tryComputeFast(input) ?: tryComputeSlow(input) ?: myDefault
 ```
 
-### Ternary Operator : `? !`
+### Ternary Operator `? !`
 
 The Ternary operator will return the  middle operand if the left operand evaluates as truthy otherwise it will return the right operand.
 
@@ -59,9 +61,9 @@ assert ("c" ? "a" ! "b") == "a"
 assert ("" ? "a" ! "b") == "b"
 ```
 
-### Conditional Assignment Operator : `?=`
+### Conditional Assignment Operator `?=`
 
-The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as Truthy
+The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as truthy
 
 __Examples:__
 
@@ -73,11 +75,11 @@ s ?= "b"
 assert (s == "a")
 ```
 
-### Conditional Access Operator : `?.`
+### Conditional Access Operator `?.`
 
 The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned.
 
-__Example:__
+__Examples:__
 
 ```nim
  let s = @["one"]
