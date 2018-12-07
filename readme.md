@@ -26,7 +26,7 @@ The elvis operator will return the left operand if it is 'truthy' otherwise it w
 
 See [null coalescing operator](https://en.wikipedia.org/wiki/Null_coalescing_operator) `?:` 
 
-Examples, Test and Implmentation ideas have been in part derived from the Coalesce module ('https://github.com/piedar/coalesce'). This module should be prefered by those looking for a stricter implmentation of a Null coalescing operator, which does not accomdate a broader concept of 'truthy' values.
+Examples, Test and Implmentation ideas have been in part derived from the Coalesce module ('https://github.com/piedar/coalesce'). That module should be prefered by those looking for a stricter implmentation of a Null coalescing operator, but the implmentation here may be more usefull especially now that stings are not nilable (from Nim 0.19)
 
 Examples:
   - `assert ("" ?: "b") == "b"`
