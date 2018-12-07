@@ -1,7 +1,7 @@
 # Package
-version       = "0.1.1"
+version       = "0.2.0"
 author        = "Mat Taylor"
-description   = "truthy, elvis and ternary operators for nim"
+description   = "truthy, elvis, ternary and conditional assignment operators for nim"
 license       = "MIT"
 
 # Dependencies
