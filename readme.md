@@ -63,7 +63,7 @@ assert ("" ? "a" ! "b") == "b"
 
 ### Conditional Assignment Operator `?=`
 
-The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as truthy
+The Conditional assignment operator will assign the right operand to the left operand only when the left operand evaluates as falsey
 
 __Examples:__
 
@@ -74,6 +74,20 @@ assert (s == "a")
 s ?= "b"
 assert (s == "a")
 ```
+### Conditional Assignment Operator (Reverse) `=?`
+
+The Reverse Conditional assignment operator will assign the right operand to the left operand only when the right operand evaluates as truthy
+
+__Examples:__
+
+```nim
+var s:string
+s =? "a" 
+assert (s == "a")
+s =? ""
+assert (s == "a")
+```
+
 
 ### Conditional Access Operator `?.`
 

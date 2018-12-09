@@ -46,7 +46,14 @@ suite "conditional assign":
     var i1 = 1
     i1 ?= 2
     check(i1 == 1)
-
+  test "reverse falsy assign":
+    var i0 = 1
+    i0 =? 0
+    check(i0 == 1)
+  test "reverse truthy assign": 
+    var i1 = 1
+    i1 =? 2
+    check(i1 == 2)
 
 suite "conditional access":
   test "truthy getter": check((seq1[0]?.len) == 3)

@@ -38,6 +38,9 @@ template `?:`*[T](l: Option[T], r: T): T = (if ?l.get(): l.get() else: r)
 # Conditional Assignment
 template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 
+# Conditional Assignment (Reverse)
+template `=?`*[T](l: T, r: T) = (if ?r: l = r)
+
 #Conditional access (WIP)
 template `?.`*[T,U](left: T, right: proc (x: T): U):U =
   if ?left: right(left) 
