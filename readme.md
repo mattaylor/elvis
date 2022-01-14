@@ -1,6 +1,6 @@
 # Elvis
 
-The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator and an experimental __conditional access operator__ (`?.`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
+The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator and an experimental __conditional access operator__ (`.?`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
 
 ### Truthy operator  `?`
 
