@@ -50,6 +50,13 @@ template `?.`*[T,U](left: T, right: proc (x: T): U):U =
     var res: U
     res
 
+# alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
+template `.?`*[T,U](left: T, right: proc (x: T): U):U =
+  if ?left: right(left) 
+  else:
+    var res: U
+    res
+
 type Branch[T] = object
   then, other: T
 
