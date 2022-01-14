@@ -16,6 +16,19 @@ let str1 = ""
 let seq1 = @["one"]
 let tab1 = { "one": 1 }.newTable
 
+type 
+  Data = ref object
+    val: int
+
+  Obj = ref object
+    data: Data
+
+var nilObj:Obj
+var objNilData = Obj()
+var obj = Obj()
+obj.data = Data()
+obj.data.val = 10
+
 suite "truthy": 
   test "empty string": check(not(?""))
   test "zero float": check(not ?0.0)
@@ -66,7 +79,12 @@ suite "conditional access (alt syntax)":
   test "truthy getter": check((seq1[0].?len) == 3) 
   test "falsy getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
-   
+
+suite "conditional access (chained)":
+  test "nil check": check(nilObj.?data == nil)
+  test "falsy on ref": check(nilObj.?data.?val == 0)
+  test "falsy on ref": check(objNilData.?data.?val == 0)
+  test "truthy on ref": check(obj.?data.?val == 10)
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)
