@@ -16,9 +16,11 @@ template truthy*(val: bool): bool = val
 template truthy*(val: string): bool = (val != "")
 
 # true if ref or ptr not isNil
+
 template truthy*[T](val: ref T): bool = not val.isNil
 template truthy*[T](val: ptr T): bool = not val.isNil
 template truthy*(val: pointer): bool = not val.isNil
+template truthy*(val: ref | ptr | pointer): bool = not val.isNil
 
 # true if seq not empty
 template truthy*[T](val: seq[T]): bool = (val != @[])
@@ -45,9 +47,7 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 # Assign only when right is truthy
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
-
 template `?.`*[T,U](left: T, right: proc (x: T): U):U =
-  echo "h1"
   if ?left and ?right(left): left.right 
   else: default(typeof(left.right))
 

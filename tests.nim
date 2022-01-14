@@ -18,6 +18,19 @@ let tab0 = { "one": "uno" }.toTable
 let tab1 = { "one": 1 }.newTable
 
 
+type 
+  Data = ref object
+    val: int
+
+  Obj = ref object
+    data: Data
+
+var nilObj:Obj
+var objNilData = Obj()
+var obj = Obj()
+obj.data = Data()
+obj.data.val = 10
+
 suite "truthy": 
   test "empty string": check(not(?""))
   test "zero float": check(not ?0.0)
@@ -69,7 +82,13 @@ suite "simple conditional access (alt syntax)":
   test "falsey getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
 
-suite "conditional access mutable":
+suite "conditional access (chained)":
+  test "nil check": check(nilObj.?data == nil)
+  test "falsy on ref": check(nilObj.?data.?val == 0)
+  test "falsy on ref": check(objNilData.?data.?val == 0)
+  test "truthy on ref": check(obj.?data.?val == 10)
+
+suite "conditional mutable":
   var seq = @["one"]
   test "truthy getter": check(seq.?pop == "one")
   test "falsey getter": check(seq.?pop == "")
@@ -80,7 +99,7 @@ suite "conditional access with args":
   test "falsey getter": check(tab0.?getOrDefault("two") == "")
   test "multiple args": check(tab0.?getOrDefault("two", "zero") == "zero")
 
-suite "conditional access chaining":
+suite "conditional access chaining with args":
   test "truthy getter": check(tab0.?getOrDefault("one").?len == 3) 
   test "falsey getter": check(tab0.?getOrDefault("two").?len == 0)
 
