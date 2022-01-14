@@ -14,7 +14,9 @@ var seq0: seq[int]
 var cha0: char 
 let str1 = "" 
 let seq1 = @["one"]
+let tab0 = { "one": "uno" }.toTable
 let tab1 = { "one": 1 }.newTable
+
 
 type 
   Data = ref object
@@ -71,13 +73,13 @@ suite "conditional assign":
     i1 =? 2
     check(i1 == 2)
 
-suite "conditional access":
+suite "simple conditional access":
   test "truthy getter": check((seq1[0]?.len) == 3) 
   test "falsy getter": check((seq1[1]?.len) == 0)
 
-suite "conditional access (alt syntax)":
+suite "simple conditional access (alt syntax)":
   test "truthy getter": check((seq1[0].?len) == 3) 
-  test "falsy getter": check((seq1[1].?len) == 0)
+  test "falsey getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
 
 suite "conditional access (chained)":
@@ -85,6 +87,23 @@ suite "conditional access (chained)":
   test "falsy on ref": check(nilObj.?data.?val == 0)
   test "falsy on ref": check(objNilData.?data.?val == 0)
   test "truthy on ref": check(obj.?data.?val == 10)
+
+#[
+suite "conditional access extra":
+  var seq = @["one"]
+  test "truthy getter": check(seq.?pop) == "one")
+  test "falsey getter": check(seq.?pop) == "")
+
+suite "conditional access with args":
+  test "truthy getter": check(tab0.?getOrDefault("one") == "uno") 
+  test "falsey getter": check(tab0.?getOrDefault("two") == "")
+  test "multiple args": check(tab0.?getOrDefault("two", "zero") == "zero")
+ 
+suite "conditional access chaining":
+  test "truthy getter": check(tab0.?getOrDefault("one").?len == 3) 
+  test "falsey getter": check(tab0.?getOrDefault("two").?len == 0)
+
+]#
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)

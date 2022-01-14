@@ -43,17 +43,15 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 # Assign only when right is truthy
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
-# Conditional access (call right only when left is truthy
-template `?.`*(left, right: untyped): untyped =
-  if ?left: left.right
-  else:
-    default(typeof(left.right))
+# Conditional access (call right only when left is truthy)
+template `?.`*[T,U](left: T, right: proc (x: T): U):U =
+  if ?left and ?right(left): right(left) 
+  else: default(typeof(left.right))
 
 # alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
 template `.?`*(left, right: untyped): untyped =
-  if ?left: left.right
-  else:
-    default(typeof(left.right))
+  if ?left and ?right(left): left.right
+  else: default(typeof(left.right))
 
 type Branch[T] = object
   then, other: T
