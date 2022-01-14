@@ -26,6 +26,9 @@ template truthy*[T](val: seq[T]): bool = (val != @[])
 # true if opt not none
 template truthy*[T](val: Option[T]): bool = isSome(val)
 
+# true if T is not-nilable (This is the catch-all overload)
+template truthy*[T](val: T): bool = not compiles(val.isNil)
+
 # true if truthy and no exception.
 template `?`*[T](val: T): bool = (try: truthy(val) except: false)
 

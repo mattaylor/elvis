@@ -28,7 +28,7 @@ suite "truthy":
   test "not empty string": check(?"1")
   test "not zero float": check(?1.1)
   test "not zero int": check(?1)
-  test "not empty seq": check(?[0])
+  test "not empty array": check(?[0])
   test "some option": check(?some(""))
 
 suite "ternary":
