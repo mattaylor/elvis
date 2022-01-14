@@ -88,10 +88,11 @@ suite "conditional access (chained)":
   test "falsy on ref": check(objNilData.?data.?val == 0)
   test "truthy on ref": check(obj.?data.?val == 10)
 
-suite "conditional mutable":
-  var seq = @["one"]
+suite "conditional access mutable":
+  var seq = @["zero", "one"]
   test "truthy getter": check(seq.?pop == "one")
-  test "falsey getter": check(seq.?pop == "")
+  #test "chained truthy": check(seq.?pop.?len) == 4) # fails as pop is called twice
+  test "falsey getter": check(seq.?pop.?len == 0)
 
 #[
 suite "conditional access with args":

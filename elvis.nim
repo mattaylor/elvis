@@ -48,13 +48,14 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
 template `?.`*[T,U](left: T, right: proc (x: T): U):U =
-  if ?left and ?right(left): left.right 
+  if ?left: 
+    let r = left.right
+    if ?r: r else: default(typeof(left.right)) 
   else: default(typeof(left.right))
-
 
 # alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
 template `.?`*(left, right: untyped): untyped =
-  if ?left: 
+  if ?left:
     let r = left.right
     if ?r: r else: default(typeof(left.right)) 
   else: default(typeof(left.right))
