@@ -16,14 +16,10 @@ template truthy*(val: bool): bool = val
 template truthy*(val: string): bool = (val != "")
 
 # true if ref or ptr not isNil
-template truthy*[T](val: ref T): bool = not val.isNil
-template truthy*[T](val: ptr T): bool = not val.isNil
-template truthy*(val: pointer): bool = not val.isNil
-
+template truthy*(val: ref | ptr | pointer): bool = not val.isNil
 
 # true if seq not empty
 template truthy*[T](val: seq[T]): bool = (val != @[])
-
 
 # true if opt not none
 template truthy*[T](val: Option[T]): bool = isSome(val)
@@ -51,13 +47,13 @@ template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 template `?.`*(left, right: untyped): untyped =
   if ?left: left.right
   else:
-    typeof(left.right).default
+    default(typeof(left.right))
 
 # alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
 template `.?`*(left, right: untyped): untyped =
   if ?left: left.right
   else:
-    typeof(left.right).default
+    default(typeof(left.right))
 
 type Branch[T] = object
   then, other: T
