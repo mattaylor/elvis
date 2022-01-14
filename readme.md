@@ -89,7 +89,7 @@ assert (s == "a")
 ```
 
 
-### Conditional Access Operator `?.`
+### Conditional Access Operator `.?`
 
 The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned.
 
@@ -97,6 +97,6 @@ __Examples:__
 
 ```nim
  let s = @["one"]
- assert((s[0]?.len) == 3)
- assert((s[1]?.len) == 0)
+ assert((s[0].?len) == 3)
+ assert((s[1].?len) == 0)
 ```
