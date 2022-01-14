@@ -23,12 +23,15 @@ suite "truthy":
   test "\0 char": check(not ?cha0)
   test "not \0 char": check(?'0')
   test "zero int": check(not ?0)
-  test "empty seq": check(not ?seq0)
+  test "empty array": check(not ?seq0)
+  test "empty seq lit": check(?seq1)
   test "none option": check(not ?none(string))
   test "not empty string": check(?"1")
   test "not zero float": check(?1.1)
   test "not zero int": check(?1)
-  test "not empty seq": check(?[0])
+  test "not empty array": check(?[0])
+  test "not empty seq lit": check(?seq1)
+
   test "some option": check(?some(""))
 
 suite "ternary":
@@ -56,8 +59,14 @@ suite "conditional assign":
     check(i1 == 2)
 
 suite "conditional access":
-  test "truthy getter": check((seq1[0]?.len) == 3)
+  test "truthy getter": check((seq1[0]?.len) == 3) 
   test "falsy getter": check((seq1[1]?.len) == 0)
+
+suite "conditional access (alt syntax)":
+  test "truthy getter": check((seq1[0].?len) == 3) 
+  test "falsy getter": check((seq1[1].?len) == 0)
+  test "truthy precedence": check(seq1[0].?len == 3) 
+   
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)

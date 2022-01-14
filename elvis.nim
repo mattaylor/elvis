@@ -20,14 +20,18 @@ template truthy*[T](val: ref T): bool = not val.isNil
 template truthy*[T](val: ptr T): bool = not val.isNil
 template truthy*(val: pointer): bool = not val.isNil
 
+
 # true if seq not empty
 template truthy*[T](val: seq[T]): bool = (val != @[])
+
 
 # true if opt not none
 template truthy*[T](val: Option[T]): bool = isSome(val)
 
 # true if truthy and no exception.
 template `?`*[T](val: T): bool = (try: truthy(val) except: false)
+
+template truthy*[T](val: T): bool = not compiles(val.isNil())
 
 # return left if truthy otherwise right
 template `?:`*[T](l: T, r: T): T = (if ?l: l else: r)
