@@ -1,30 +1,32 @@
 import options
 
-#true if not 0 or NaN
+#true if float not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
 
-#true if not 0
+#true if int not 0
 template truthy*(val: int): bool  = (val != 0)
 
-#try if not \0
+#try if char not \0
 template truthy*(val: char): bool = (val != '\0')
 
 #true if true
 template truthy*(val: bool): bool = val
 
-#true if not empty
+#true if string not empty 
 template truthy*(val: string): bool = (val != "")
 
-# true if not isNil()
-template truthy*[T](val: T): bool = not compiles(val.isNil())
+# true if ref or ptr not isNil
+template truthy*[T](val: ref T): bool = not val.isNil
+template truthy*[T](val: ptr T): bool = not val.isNil
+template truthy*(val: pointer): bool = not val.isNil
 
-# true if not empty
+# true if seq not empty
 template truthy*[T](val: seq[T]): bool = (val != @[])
 
-# true if not none
+# true if opt not none
 template truthy*[T](val: Option[T]): bool = isSome(val)
 
-# like truthy but also returns false on an exception.
+# true if truthy and no exception.
 template `?`*[T](val: T): bool = (try: truthy(val) except: false)
 
 # return left if truthy otherwise right
@@ -35,13 +37,13 @@ template `?:`*[T](l: T, r: Option[T]): Option[T] = (if ?l: some(l) else: r)
  
 template `?:`*[T](l: Option[T], r: T): T = (if ?l.get(): l.get() else: r)
 
-# Conditional Assignment
+# Assign only when left is not truthy
 template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 
-# Conditional Assignment (Reverse)
+# Assign only when right is truthy
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
-#Conditional access (WIP)
+# Conditional access (call right only when left is truthy
 template `?.`*[T,U](left: T, right: proc (x: T): U):U =
   if ?left: right(left) 
   else:
