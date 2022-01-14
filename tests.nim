@@ -69,18 +69,17 @@ suite "simple conditional access (alt syntax)":
   test "falsey getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
 
-#[
-
-suite "conditional access extra":
+suite "conditional access mutable":
   var seq = @["one"]
-  test "truthy getter": check(seq.?pop) == "one")
-  test "falsey getter": check(seq.?pop) == "")
+  test "truthy getter": check(seq.?pop == "one")
+  test "falsey getter": check(seq.?pop == "")
 
+#[
 suite "conditional access with args":
   test "truthy getter": check(tab0.?getOrDefault("one") == "uno") 
   test "falsey getter": check(tab0.?getOrDefault("two") == "")
   test "multiple args": check(tab0.?getOrDefault("two", "zero") == "zero")
- 
+
 suite "conditional access chaining":
   test "truthy getter": check(tab0.?getOrDefault("one").?len == 3) 
   test "falsey getter": check(tab0.?getOrDefault("two").?len == 0)
