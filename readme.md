@@ -91,12 +91,14 @@ assert (s == "a")
 
 ### Conditional Access Operator `.?`
 
-The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned.
+The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned. Chained conditional access is also supported for pertties and simple functions, however conidtioanl access to chained function calls with additonal arguments will currnetly not compile.
 
 __Examples:__
 
 ```nim
- let s = @["one"]
- assert((s[0].?len) == 3)
- assert((s[1].?len) == 0)
+ let opt0 = none(string)
+ let opt1 = some("one")
+ assert(opt0.?get.?len == 0)
+ assert(opt1.?get.?len == 3)
+ #assert(opt1.?get("none") == "none" # compile error 
 ```

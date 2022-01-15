@@ -60,7 +60,7 @@ template `.?`*(left, right: untyped): untyped =
     if ?r: r else: default(typeof(left.right)) 
   else: default(typeof(left.right))
 
-#template `.?`*[T,U,V](left: T, right: proc (x: T, y:V):U, arg: V):U =
+#template `.?`*[T,V,U](left: T, right: proc (x: T, y:V):U, arg: V):U =
 #  if ?left: left.right(arg) 
 #  else: default(typeof(left.right(arg)))
 

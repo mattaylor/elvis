@@ -1,5 +1,5 @@
 # Package
-version       = "0.2.0"
+version       = "0.3.0"
 author        = "Mat Taylor"
 description   = "truthy, elvis, ternary and conditional assignment operators for nim"
 license       = "MIT"

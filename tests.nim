@@ -16,6 +16,8 @@ let str1 = ""
 let seq1 = @["one"]
 let tab0 = { "one": "uno" }.toTable
 let tab1 = { "one": 1 }.newTable
+let opt0 = none(string)
+let opt1 = some("one")
 
 
 type 
@@ -87,11 +89,14 @@ suite "conditional access (chained)":
   test "falsy on ref": check(nilObj.?data.?val == 0)
   test "falsy on ref": check(objNilData.?data.?val == 0)
   test "truthy on ref": check(obj.?data.?val == 10)
+  test "truthy chained proc": check(opt1.?get.?len == 3)
+  test "falsey chained proc": check(opt0.?get.?len == 0)
+
 
 suite "conditional access mutable":
-  var seq = @["zero", "one"]
-  test "truthy getter": check(seq.?pop == "one")
-  #test "chained truthy": check(seq.?pop.?len) == 4) # fails as pop is called twice
+  var seq = @["one", "none"]
+  test "truthy getter": check(seq.?pop == "none")
+  #test "chained truthy": check(seq.?pop.?len) == 3) # chains fail as pop is called twice
   test "falsey getter": check(seq.?pop.?len == 0)
 
 #[
