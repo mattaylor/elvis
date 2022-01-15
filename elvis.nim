@@ -17,9 +17,6 @@ template truthy*(val: string): bool = (val != "")
 
 # true if ref or ptr not isNil
 
-template truthy*[T](val: ref T): bool = not val.isNil
-template truthy*[T](val: ptr T): bool = not val.isNil
-template truthy*(val: pointer): bool = not val.isNil
 template truthy*(val: ref | ptr | pointer): bool = not val.isNil
 
 # true if seq not empty
