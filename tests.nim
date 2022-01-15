@@ -27,11 +27,18 @@ type
   Obj = ref object
     data: Data
 
+proc foo(d: Data, val: int): int =
+  d.val + val
+
+proc bar(d: Data, val1: int, val2: int): int =
+  d.val + val1 + val2
+
 var nilObj:Obj
 var objNilData = Obj()
 var obj = Obj()
 obj.data = Data()
 obj.data.val = 10
+
 
 suite "truthy": 
   test "empty string": check(not(?""))
@@ -79,25 +86,29 @@ suite "simple conditional access":
   test "truthy getter": check((seq1[0]?.len) == 3) 
   test "falsy getter": check((seq1[1]?.len) == 0)
 
+#[
 suite "simple conditional access (alt syntax)":
   test "truthy getter": check((seq1[0].?len) == 3) 
   test "falsey getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
+]#
 
 suite "conditional access (chained)":
-  test "nil check": check(nilObj.?data == nil)
-  test "falsy on ref": check(nilObj.?data.?val == 0)
-  test "falsy on ref": check(objNilData.?data.?val == 0)
-  test "truthy on ref": check(obj.?data.?val == 10)
-  test "truthy chained proc": check(opt1.?get.?len == 3)
-  test "falsey chained proc": check(opt0.?get.?len == 0)
-
+  test "nil check": check((nilObj?.data) == nil)
+  test "falsy on ref": check((nilObj?.data?.val) == 0)
+  test "falsy on ref": check((objNilData?.data?.val) == 0)
+  test "truthy on ref": check((obj?.data?.val) == 10)
+  test "truthy chained proc": check((opt1?.get?.len) == 3)
+  test "falsey chained proc": check((opt0?.get?.len) == 0)
+  test "truthy chained call arg": check((obj?.data?.foo(1)) == 11)
+  test "truthy chained command arg": check((obj?.data?.foo 1) == 11)
+  test "truthy chained call args": check((obj?.data?.bar(1, 10)) == 21)
 
 suite "conditional access mutable":
   var seq = @["one", "none"]
-  test "truthy getter": check(seq.?pop == "none")
+  test "truthy getter": check((seq?.pop) == "none")
   #test "chained truthy": check(seq.?pop.?len) == 3) # chains fail as pop is called twice
-  test "falsey getter": check(seq.?pop.?len == 0)
+  #test "falsey getter": check(seq.?pop.?len == 0)
 
 #[
 suite "conditional access with args":

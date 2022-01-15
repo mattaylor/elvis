@@ -1,4 +1,4 @@
-import options
+import std / [options, macros]
 
 #true if float not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
@@ -44,22 +44,76 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 # Assign only when right is truthy
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
-template `?.`*[T,U](left: T, right: proc (x: T): U):U =
-  if ?left: 
-    let r = left.right
-    if ?r: r else: default(typeof(left.right)) 
-  else: default(typeof(left.right))
-
 # alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
-template `.?`*(left, right: untyped): untyped =
-  if ?left:
-    let r = left.right
-    if ?r: r else: default(typeof(left.right)) 
-  else: default(typeof(left.right))
+# conditional access, a macro is required to handle AST rewriting for calls
+proc condAccFlatten(args: NimNode): seq[NimNode] =
+  # flatten the arguments a.?b.?c produces an Infix tree, this gives us seq
+  case args.kind:
+  of nnkArgList: 
+    result.add condAccFlatten(args[0])
+    result.add args[1]
+  of nnkInfix:
+    assert args[0].eqIdent("?.")
+    result.add condAccFlatten(args[1])
+    result.add condAccFlatten(args[2])
+  else:
+    result.add args
 
-#template `.?`*[T,V,U](left: T, right: proc (x: T, y:V):U, arg: V):U =
-#  if ?left: left.right(arg) 
-#  else: default(typeof(left.right(arg)))
+proc genExpr(parts: seq[NimNode], index: int): NimNode =
+  # produces the DotExpr tree for each nested level
+  if index == 0:
+    result = parts[0]
+  else:
+    result = newDotExpr(parts[0], parts[1])
+
+  if index > 1:
+    for i in 2..index:
+      result = newDotExpr(result, parts[i])
+
+proc genDefault(parts: seq[NimNode], callArgs:seq[NimNode], index: int): NimNode =
+  # produces the default value of the full expression
+  var expr = parts.genExpr(index)
+  if callArgs.len > 0:
+    expr = newCall(expr)
+    for ca in callArgs:
+      expr.add ca
+  result = quote do:
+    default(typeof(`expr`))
+
+proc genIf(parts: seq[NimNode], defaultVal: NimNode, callArgs: seq[NimNode], index: int): NimNode =
+  # generates the nested if expressions for testing each DotExpr for truthy'ness
+
+  var falsyBranch = newTree(nnkElifExpr, 
+    newTree(nnkPrefix, ident("not"), 
+      newTree(nnkPrefix, ident("?"), 
+        parts.genExpr(index))), 
+    defaultVal)
+  if index == parts.len - 2:
+    result = newTree(nnkIfExpr, falsyBranch)
+    if callargs.len == 0:
+      result.add newTree(nnkElseExpr, parts.genExpr(index + 1))
+    else:
+      var call = newCall(parts.genExpr(index + 1))
+      for ca in callArgs:
+        call.add ca
+      result.add newTree(nnkElseExpr, call)
+  else:
+    result = newTree(nnkIfExpr,
+      falsyBranch,
+      newTree(nnkElseExpr, newTree(nnkPar, genIf(parts, defaultVal, callargs, index+1)))
+    )
+
+macro `?.`*(args: varargs[untyped]): untyped =
+  var parts = condAccFlatten(args)
+  var callArgs: seq[NimNode]
+  if parts[^1].kind == nnkCall or parts[^1].kind == nnkCommand:
+    let call = parts.pop()
+    parts.add call[0]
+    for carg in call[1..^1]:
+      callArgs.add carg
+
+  let defaultVal = genDefault(parts, callArgs, parts.len - 1)
+  result = genIf(parts, defaultVal, callargs, 0)
 
 type Branch[T] = object
   then, other: T
