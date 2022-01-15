@@ -104,7 +104,7 @@ __Examples:__
 ```
 
 
-### Default Coalesce Operator `??`
+### Default Coalesce Operator `?.`
 
 The  Default coaelsce operator will return the default (falsey) value of the type of the right hand operator when the right hand operator evaluates as falsey. This can be a useful work around when dealing with long chains which might throw exceptions.
 
@@ -113,7 +113,7 @@ __Examples:__
 ```nim
  let opt0 = none(string)
  let opt1 = some("one")
- assert(??opt0.get.len == 0)
- assert(??opt1.get.len == 3)
- assert(??opt0.get("none") == "none" 
+ assert(?.opt0.get.len == 0)
+ assert(?.opt1.get.len == 3)
+ assert(?.opt0.get("none").len == 4 
 ```
