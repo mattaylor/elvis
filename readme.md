@@ -1,6 +1,6 @@
 # Elvis
 
-The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator and an experimental __conditional access operator__ (`.?`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
+The __Elvis__ package implements a __truthy__ (`?`), __ternary__ (`?!`), __coalesce__ (`?:`) and a __conditional assignment__ (`?=`) operator,  __conditional access operator__ (`.?`) and __default coalesce__ (`??`) as syntactic sugar for Nim to work with conditional expressions using more than just boolean types. 
 
 ### Truthy operator  `?`
 
@@ -91,7 +91,7 @@ assert (s == "a")
 
 ### Conditional Access Operator `.?`
 
-The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned. Chained conditional access is also supported for pertties and simple functions, however conidtioanl access to chained function calls with additonal arguments will currnetly not compile.
+The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned. Chained conditional access is also supported for pertties and simple functions, however conidtioanl access to chained function calls with additonal arguments will currnetly not compile. For this cases the Falsy Default operator should be used
 
 __Examples:__
 
@@ -101,4 +101,19 @@ __Examples:__
  assert(opt0.?get.?len == 0)
  assert(opt1.?get.?len == 3)
  #assert(opt0.?get("none") == "none" # compile error 
+```
+
+
+### Default Coalesce Operator `??`
+
+The  Default coaelsce operator will return the default (falsey) value of the type of the right hand operator when the right hand operator evaluates as falsey. This can be a useful work around when dealing with long chains which might throw exceptions.
+
+__Examples:__
+
+```nim
+ let opt0 = none(string)
+ let opt1 = some("one")
+ assert(??opt0.get.len == 0)
+ assert(??opt1.get.len == 3)
+ assert(??opt0.get("none") == "none" 
 ```

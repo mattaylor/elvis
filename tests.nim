@@ -12,7 +12,6 @@ template `==`[T](left: T, right: Option[T]): bool =
 var str0: string
 var seq0: seq[int]
 var cha0: char 
-let str1 = "" 
 let seq1 = @["one"]
 let tab0 = { "one": "uno" }.toTable
 let tab1 = { "one": 1 }.newTable
@@ -99,17 +98,12 @@ suite "conditional access mutable":
   #test "chained truthy": check(seq.?pop.?len) == 3) # chains fail as pop is called twice
   test "falsey getter": check(seq.?pop.?len == 0)
 
-#[
-suite "conditional access with args":
-  test "truthy getter": check(tab0.?getOrDefault("one") == "uno") 
-  test "falsey getter": check(tab0.?getOrDefault("two") == "")
-  test "multiple args": check(tab0.?getOrDefault("two", "zero") == "zero")
-
-suite "conditional access chaining with args":
-  test "truthy getter": check(tab0.?getOrDefault("one").?len == 3) 
-  test "falsey getter": check(tab0.?getOrDefault("two").?len == 0)
-
-]#
+suite "default when falsey":
+  test "truthy getter": check(??tab0.getOrDefault("one") == "uno") 
+  test "falsey getter": check(??tab0.getOrDefault("two") == "")
+  test "multiple args": check(??tab0.getOrDefault("two", "zero") == "zero")
+  test "truthy deep chain": check(??tab0.getOrDefault("one").len == 3) 
+  test "falsey deep chain": check(??tab0.getOrDefault("two").len == 0)
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)
