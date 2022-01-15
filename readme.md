@@ -91,7 +91,7 @@ assert (s == "a")
 
 ### Conditional Access Operator `.?`
 
-The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned. Chained conditional access is also supported for pertties and simple functions, however conidtioanl access to chained function calls with additonal arguments will currnetly not compile. For this cases the Falsy Default operator should be used
+The Conditional access operator will call the right operand with the left operand as thefirst argument when the left operand evaluates as truthy. Otherwise it will return a new unintiated instance (falsy) whatever type the right operand proc would have returned. Chained conditional access is also supported for pertties and simple functions, however conditional access to chained function calls with additonal arguments will currnetly not compile due to current limitations with the AST  for dot operators in templates (see https://github.com/mattaylor/elvis/issues/7). For these cases the default coalesce operator `?.` should be used instead. 
 
 __Examples:__
 
