@@ -115,5 +115,5 @@ __Examples:__
  let opt1 = some("one")
  assert(?.opt0.get.len == 0)
  assert(?.opt1.get.len == 3)
- assert(?.opt0.get("none").len == 4 
+ assert(?.opt0.get("none").len == 4)
 ```
