@@ -75,8 +75,8 @@ suite "conditional assign":
     check(i1 == 2)
 
 suite "simple conditional access":
-  test "truthy getter": check((seq1[0]?.len) == 3) 
-  test "falsy getter": check((seq1[1]?.len) == 0)
+  test "truthy getter": check((seq1[0].?len) == 3) 
+  test "falsy getter": check((seq1[1].?len) == 0)
 
 suite "simple conditional access (alt syntax)":
   test "truthy getter": check((seq1[0].?len) == 3) 
@@ -91,7 +91,6 @@ suite "conditional access (chained)":
   test "truthy chained proc": check(opt1.?get.?len == 3)
   test "falsey chained proc": check(opt0.?get.?len == 0)
 
-
 suite "conditional access mutable":
   var seq = @["one", "none"]
   test "truthy getter": check(seq.?pop == "none")
@@ -99,11 +98,11 @@ suite "conditional access mutable":
   test "falsey getter": check(seq.?pop.?len == 0)
 
 suite "default when falsey":
-  test "truthy getter": check(??tab0.getOrDefault("one") == "uno") 
-  test "falsey getter": check(??tab0.getOrDefault("two") == "")
-  test "multiple args": check(??tab0.getOrDefault("two", "zero") == "zero")
-  test "truthy deep chain": check(??tab0.getOrDefault("one").len == 3) 
-  test "falsey deep chain": check(??tab0.getOrDefault("two").len == 0)
+  test "truthy getter": check(?.tab0.getOrDefault("one") == "uno") 
+  test "falsey getter": check(?.tab0.getOrDefault("two") == "")
+  test "multiple args": check(?.tab0.getOrDefault("two", "zero") == "zero")
+  test "truthy deep chain": check(?.tab0.getOrDefault("one").len == 3) 
+  test "falsey deep chain": check(?.tab0.getOrDefault("two").len == 0)
 
 suite "elvis number": 
   test "zero left": check((0 ?: 1) == 1)
