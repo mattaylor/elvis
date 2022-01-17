@@ -106,7 +106,7 @@ __Examples:__
 
 ### Default Coalesce Operator `?.`
 
-The  Default coaelsce operator will return the default (falsey) value of the type of the right hand operator when the right hand operator evaluates as falsey. This can be a useful work around when dealing with long chains which might throw exceptions.
+The  Default coaelsce operator will return the default value of the type of the right operand when this operand evaluates as falsey. This can be a useful work around when dealing with long chains which might throw exceptions.
 
 __Examples:__
 
