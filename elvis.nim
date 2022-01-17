@@ -44,9 +44,11 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 # Assign only when right is truthy
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
+# Return right if truthy otherwise default
 template `?.`*[T](right: T):T =
   if ?right: right else: default(typeof(right))
 
+# Access right from left only if truethy otherwise default
 template `.?`*(left, right: untyped): untyped =
   try: 
     var tmp = left
