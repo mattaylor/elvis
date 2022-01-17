@@ -45,8 +45,9 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
 template `?.`*[T](right: T):T =
+  let tmp = right
   if ?right: right else: default(typeof(right))
-  
+
 #[
 template `?.`*[T,U](left: T, right: proc (x: T): U):U =
   if ?left: 
@@ -57,14 +58,13 @@ template `?.`*[T,U](left: T, right: proc (x: T): U):U =
 
 # alternate syntax for conditional access to boost operator precendence (https://github.com/mattaylor/elvis/issues/3) 
 template `.?`*(left, right: untyped): untyped =
-  if ?left:
-    let r = left.right
-    if ?r: r else: default(typeof(left.right)) 
-  else: default(typeof(left.right))
-
-#template `.?`*[T,V,U](left: T, right: proc (x: T, y:V):U, arg: V):U =
-#  if ?left: left.right(arg) 
-#  else: default(typeof(left.right(arg)))
+  try: 
+    var tmp = left
+    if ?tmp:
+      let r = tmp.right
+      if ?r: r else: default(typeof(left.right)) 
+    else: default(typeof(left.right))
+  except: default(typeof(left.right)) 
 
 type Branch[T] = object
   then, other: T

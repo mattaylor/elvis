@@ -74,41 +74,36 @@ suite "conditional assign":
     i1 =? 2
     check(i1 == 2)
 
-suite "simple conditional access":
-  test "truthy getter": check((seq1[0].?len) == 3) 
-  test "falsy getter": check((seq1[1].?len) == 0)
-
-suite "simple conditional access (alt syntax)":
+suite "conditional access":
+  var s1 = @["one"]
+  var s2 = @["one"]
   test "truthy getter": check((seq1[0].?len) == 3) 
   test "falsey getter": check((seq1[1].?len) == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
-
-suite "conditional access (chained)":
   test "nil check": check(nilObj.?data == nil)
   test "falsy on ref": check(nilObj.?data.?val == 0)
   test "falsy on ref": check(objNilData.?data.?val == 0)
   test "truthy on ref": check(obj.?data.?val == 10)
   test "truthy chained proc": check(opt1.?get.?len == 3)
   test "falsey chained proc": check(opt0.?get.?len == 0)
+  test "no sideeffects": check(s1.?pop == "one")
+  test "no sideeffects (chained)": check(s2.?pop.?len == 3)
 
-suite "conditional access mutable":
-  var seq = @["one", "none"]
-  test "truthy getter": check(seq.?pop == "none")
-  #test "chained truthy": check(seq.?pop.?len) == 3) # chains fail as pop is called twice
-  test "falsey getter": check(seq.?pop.?len == 0)
-
-suite "default when falsey":
-  test "truthy getter": check(?.tab0.getOrDefault("one") == "uno") 
+suite "default coaelsce":
+  var s1 = @["one"]
+  test "truthy getter": check(?.tab0.getOrDefault("one") == "uno")
   test "falsey getter": check(?.tab0.getOrDefault("two") == "")
   test "multiple args": check(?.tab0.getOrDefault("two", "zero") == "zero")
-  test "truthy deep chain": check(?.tab0.getOrDefault("one").len == 3) 
-  test "falsey deep chain": check(?.tab0.getOrDefault("two").len == 0)
+  test "truthy chained": check(?.tab0.getOrDefault("one").len == 3)
+  test "falsey chained": check(?.tab0.getOrDefault("two").len == 0)
+  test "no sideeffects": check(s1.?pop.len == 3)
+#  test "no side effects chained": check((s2.?pop.len == 3)
 
-suite "elvis number": 
+suite "elvis number":
   test "zero left": check((0 ?: 1) == 1)
   test "good left": check((1 ?: 2) == 1)
   test "expr left": check(((1 - 1) ?: 1) == 1)
-  
+
 suite "elvis sequence":
   test "empty left": check((seq0 ?: @[1]) == @[1])
   test "good  left": check((@[0] ?: @[1]) == @[0])
