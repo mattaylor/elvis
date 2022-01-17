@@ -77,8 +77,8 @@ suite "conditional assign":
 suite "conditional access":
   var s1 = @["one"]
   var s2 = @["one"]
-  test "truthy getter": check((seq1[0].?len) == 3) 
-  test "falsey getter": check((seq1[1].?len) == 0)
+  test "truthy getter": check(seq1[0].?len == 3) 
+  test "falsey getter": check(seq1[1].?len == 0)
   test "truthy precedence": check(seq1[0].?len == 3) 
   test "nil check": check(nilObj.?data == nil)
   test "falsy on ref": check(nilObj.?data.?val == 0)
@@ -97,7 +97,6 @@ suite "default coaelsce":
   test "truthy chained": check(?.tab0.getOrDefault("one").len == 3)
   test "falsey chained": check(?.tab0.getOrDefault("two").len == 0)
   test "no sideeffects": check(s1.?pop.len == 3)
-#  test "no side effects chained": check((s2.?pop.len == 3)
 
 suite "elvis number":
   test "zero left": check((0 ?: 1) == 1)

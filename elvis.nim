@@ -45,7 +45,6 @@ template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
 template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 
 template `?.`*[T](right: T):T =
-  let tmp = right
   if ?right: right else: default(typeof(right))
 
 #[
