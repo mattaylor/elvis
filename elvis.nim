@@ -48,13 +48,11 @@ template `=?`*[T](l: T, r: T) = (if ?r: l = r)
 template `?.`*[T](right: T):T =
   if ?right: right else: default(typeof(right))
 
-# Access right from left only if truethy otherwise default
+# Access right from left only if truthy otherwise default
 template `.?`*(left, right: untyped): untyped =
-  try: 
+  try:
     var tmp = left
-    if ?tmp:
-      let r = tmp.right
-      if ?r: r else: default(typeof(left.right)) 
+    if ?tmp: tmp.right
     else: default(typeof(left.right))
   except: default(typeof(left.right)) 
 
