@@ -1,7 +1,7 @@
 # Package
-version       = "0.4.0"
+version       = "0.5.0"
 author        = "Mat Taylor"
-description   = "truthy, elvis, ternary and conditional assignment, conditional access and coalesce operators for nim"
+description   = "truthy, elvis, ternary, conditional assignment, conditional access and coalesce and default coalesce operators for nim"
 license       = "MIT"
 
 # Dependencies
