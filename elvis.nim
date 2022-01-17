@@ -52,9 +52,9 @@ template `?.`*[T](right: T):T =
 template `.?`*(left, right: untyped): untyped =
   try:
     var tmp = left
-    if ?tmp: tmp.right
+    if truthy(tmp): tmp.right
     else: default(typeof(left.right))
-  except: default(typeof(left.right)) 
+  except: default(typeof(left.right))
 
 type Branch[T] = object
   then, other: T
