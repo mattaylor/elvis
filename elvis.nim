@@ -110,7 +110,7 @@ proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
     let thisExpr =
       genast(expr, argName, r):
         let argName = expr
-        if ?argName:
+        if truthy(argName):
           discard # placerholder rewritten either by next expression or return expression
         else:
           r
