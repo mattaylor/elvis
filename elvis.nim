@@ -57,16 +57,19 @@ proc flattenExpression(n: NimNode, result: var seq[NimNode]) =
 proc flattenExpression(n: NimNode): seq[NimNode] =
   case n.kind
   of nnkCallKinds:
-    let cleanCall = n.copyNimTree()
-    case cleanCall[0].kind:
-    of nnkDotExpr:
-      cleanCall[0][0] = newEmptyNode()
-      result.add cleanCall
-      flattenExpression(n[0][0], result)
+    if n.len > 1:
+      let cleanCall = n.copyNimTree()
+      case cleanCall[0].kind:
+      of nnkDotExpr:
+        cleanCall[0][0] = newEmptyNode()
+        result.add cleanCall
+        flattenExpression(n[0][0], result)
+      else:
+        cleanCall[1] = newEmptyNode()
+        result.add cleanCall
+        flattenExpression(n[1], result)
     else:
-      cleanCall[1] = newEmptyNode()
-      result.add cleanCall
-      flattenExpression(n[1], result)
+      result.add n
 
   of nnkBracketExpr, nnkDotExpr:
     let cleanCall = n.copyNimTree()
@@ -82,49 +85,57 @@ proc replaceCheckedVal(expr, cached: NimNode) =
     of nnkBracketExpr:
       expr[0] = cached
     of nnkCallKinds:
-      case expr[0].kind
-      of nnkDotExpr:
-        expr[0][0] = cached
-      else:
-        expr[1] = cached
+      if expr.len > 1:
+        case expr[0].kind
+        of nnkDotExpr:
+          expr[0][0] = cached
+        else:
+          expr[1] = cached
     else:
       discard
 
-proc generateIfCond(s: seq[NimNode]): (NimNode, NimNode) =
+proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
   # Generates the if condition and retuns the name of the last variable used
+  var
+    lastArg: NimNode
+    lastExpr: NimNode
   for i in countDown(s.high, 0):
     let
       expr = s[i]
       argName = gensym(nskLet, "TruthyVar")
-
-    expr.replaceCheckedVal(result[1])
-
-    if result[0].kind == nnkNilLit:
-      result[0] =
-        genast(argName, expr):
-          truthy((let argName = expr; argName))
+    expr.replaceCheckedVal(lastArg)
+    let thisExpr =
+      genast(expr, argName, r):
+        try:
+          let argName = expr
+          if ?argName:
+            discard
+          else:
+            r
+        except CatchableError:
+          r
+    if lastExpr.kind == nnkNilLit:
+      result = thisExpr
     else:
-      result[0] =
-        genast(result = result[0], argName, expr):
-          result and truthy((let argName = expr; argName))
-    result[1] = argName
+      lastExpr[0][1][0][1] = thisExpr
+    lastExpr = thisExpr
+    lastArg = argName
+
+  lastExpr[0][1][0][1] = genAst(l, r, lastArg):
+    when l isnot Option and r is Option:
+      some(lastArg)
+    elif l is Option and r isnot Option:
+      lastArg.get()
+    else:
+      lastArg
 
 # return left if truthy otherwise right
 macro `?:`*(l, r: untyped): untyped =
-  result = nnkIfStmt.newTree()
-  var expr = flattenExpression(l)
-  let (cond, lastSym) = expr.generateIfCond()
-  result = genast(l, r, cond, lastSym, opt = bindSym"Option"):
-    if cond:
-      when r is opt:
-        some(lastSym)
-      when lastSym is opt and r isnot opt:
-        lastSym.get()
-      else:
-        lastSym
-    else:
-      r
-  echo result.repr
+  if l.kind == nnkInfix and l[0].eqIdent"?:":
+    result = newStmtList(newCall("?:", newStmtList(l), r))
+  else:
+    var expr = flattenExpression(l)
+    result = expr.generateIfExpr(l, r)
 
 # Assign only when left is not truthy
 template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
@@ -142,7 +153,7 @@ template `.?`*(left, right: untyped): untyped =
     var tmp = left
     if truthy(tmp): tmp.right
     else: default(typeof(left.right))
-  except: default(typeof(left.right))
+  except CatchableError: default(typeof(left.right))
 
 type Branch[T] = object
   then, other: T
