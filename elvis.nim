@@ -117,12 +117,12 @@ proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
     if lastExpr.kind == nnkNilLit:
       result = thisExpr
     else:
-      lastExpr[0][1][0][1] = thisExpr
+      lastExpr[1][0][1] = thisExpr
 
     lastExpr = thisExpr
     lastArg = argName
 
-  lastExpr[0][1][0][1] = genAst(l, r, lastArg): # Mimics the logic used prior
+  lastExpr[1][0][1] = genAst(l, r, lastArg): # Mimics the logic used prior
     when l isnot Option and r is Option:
       some(lastArg)
     elif l is Option and r isnot Option:
