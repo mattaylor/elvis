@@ -30,8 +30,8 @@ template `?`*[T](val: T): bool = (try: truthy(val) except CatchableError: false)
 
 template truthy*[T](val: T): bool = not compiles(val.isNil())
 
-
 proc flattenExpression(n: NimNode, result: var seq[NimNode]) =
+  ## Navigates the tree, extracting each step into an expression, adding to `result`
   case n.kind
   of nnkCallKinds:
     let cleanCall = n.copyNimTree()
@@ -55,6 +55,7 @@ proc flattenExpression(n: NimNode, result: var seq[NimNode]) =
     result.add n
 
 proc flattenExpression(n: NimNode): seq[NimNode] =
+  ## Navigates the tree, extracting each step into an expression, returning them
   case n.kind
   of nnkCallKinds:
     if n.len > 1:
@@ -80,6 +81,7 @@ proc flattenExpression(n: NimNode): seq[NimNode] =
     result.add n
 
 proc replaceCheckedVal(expr, cached: NimNode) =
+  ## Navigates the tree replacing the first Node of concern with the `cached` symbol
   if cached != nil:
     case expr.kind
     of nnkBracketExpr:
@@ -95,33 +97,32 @@ proc replaceCheckedVal(expr, cached: NimNode) =
       discard
 
 proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
-  # Generates the if condition and retuns the name of the last variable used
   var
     lastArg: NimNode
     lastExpr: NimNode
-  for i in countDown(s.high, 0):
+
+  for i in countDown(s.high, 0): # iterate the flattened expression backwards as each step is one further left
     let
       expr = s[i]
       argName = gensym(nskLet, "TruthyVar")
     expr.replaceCheckedVal(lastArg)
+
     let thisExpr =
       genast(expr, argName, r):
-        try:
-          let argName = expr
-          if ?argName:
-            discard
-          else:
-            r
-        except CatchableError:
+        let argName = expr
+        if ?argName:
+          discard # placerholder rewritten either by next expression or return expression
+        else:
           r
     if lastExpr.kind == nnkNilLit:
       result = thisExpr
     else:
       lastExpr[0][1][0][1] = thisExpr
+
     lastExpr = thisExpr
     lastArg = argName
 
-  lastExpr[0][1][0][1] = genAst(l, r, lastArg):
+  lastExpr[0][1][0][1] = genAst(l, r, lastArg): # Mimics the logic used prior
     when l isnot Option and r is Option:
       some(lastArg)
     elif l is Option and r isnot Option:
@@ -129,9 +130,17 @@ proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
     else:
       lastArg
 
+  result = genast(result, r):
+    try:
+      # We need to wrap the expression inside a `try` incase an exception is raised.
+      # Since we cache the value expressions that raise exceptions do not go right into `?`.
+      result
+    except CatchableError:
+      r
+
 # return left if truthy otherwise right
 macro `?:`*(l, r: untyped): untyped =
-  if l.kind == nnkInfix and l[0].eqIdent"?:":
+  if l.kind == nnkInfix and l[0].eqIdent"?:": # We want the left hand evaluated first so make it a stmt list if it's an elvis operator
     result = newStmtList(newCall("?:", newStmtList(l), r))
   else:
     var expr = flattenExpression(l)
