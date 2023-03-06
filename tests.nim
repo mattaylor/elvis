@@ -1,7 +1,5 @@
 import elvis
-import unittest
-import tables
-import options
+import std/[unittest, tables, options, sequtils]
 
 template `==`[T](left: Option[T], right: T): bool =
   if isSome(left): left.get() == right else: false
@@ -78,7 +76,7 @@ suite "conditional access":
   var s1 = @["one"]
   var s2 = @["one"]
   test "truthy getter": check(seq1[0].?len == 3) 
-  test "falsey getter": check(seq1[1].?len == 0)
+  #test "falsey getter": check(seq1[1].?len == 0) # Make a custom `{}` or other operator that raises a `CatchableError` instead, defects are not to be caught.
   test "truthy precedence": check(seq1[0].?len == 3) 
   test "nil check": check(nilObj.?data == nil)
   test "falsy on ref": check(nilObj.?data.?val == 0)
@@ -103,6 +101,7 @@ suite "elvis number":
   test "good left": check((1 ?: 2) == 1)
   test "expr left": check(((1 - 1) ?: 1) == 1)
 
+
 suite "elvis sequence":
   test "empty left": check((seq0 ?: @[1]) == @[1])
   test "good  left": check((@[0] ?: @[1]) == @[0])
@@ -119,7 +118,7 @@ suite "elvis string":
 suite "elvis except":
   test "none left": check((tab1["two"] ?: 0) == 0)
   test "good left": check((tab1["one"] ?: 0) == 1)
-  
+
 suite "coalesce option and option":
   test "left some":
     let a: Option[string] = some("a")
@@ -243,3 +242,18 @@ suite "short circuit raws":
     proc getB(): string = raise newException(ValueError, "expensive operation")
     expect ValueError:
       discard getA() ?: getB()
+
+suite "Check truthy on chaining":
+  test "filterit":
+    var a: seq[int] = @[]
+    var b = a.filterIt(it > 3)
+
+    check (a.filterIt(it>3)[0] ?: 3) == 3
+
+    type Story = object
+      name: string
+      body: string
+
+    var stories: seq[Story] = @[Story(name:"eh", body: "no")]
+
+    check (stories.filterIt(it.name == "asdf")[0] ?: stories[0]) == stories[0]

@@ -1,4 +1,4 @@
-import options
+import std/[options, macros, genasts]
 
 #true if float not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
@@ -26,17 +26,125 @@ template truthy*[T](val: seq[T]): bool = (val != @[])
 template truthy*[T](val: Option[T]): bool = isSome(val)
 
 # true if truthy and no exception.
-template `?`*[T](val: T): bool = (try: truthy(val) except: false)
+template `?`*[T](val: T): bool = (try: truthy(val) except CatchableError: false)
 
 template truthy*[T](val: T): bool = not compiles(val.isNil())
 
-# return left if truthy otherwise right
-template `?:`*[T](l: T, r: T): T = (if ?l: l else: r)
+proc flattenExpression(n: NimNode, result: var seq[NimNode]) =
+  ## Navigates the tree, extracting each step into an expression, adding to `result`
+  case n.kind
+  of nnkCallKinds:
+    let cleanCall = n.copyNimTree()
+    case cleanCall[0].kind:
+    of nnkDotExpr:
+      cleanCall[0][0] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[0][0], result)
+    else:
+      cleanCall[1] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[1], result)
 
-# return some left if truthy otherwise right
-template `?:`*[T](l: T, r: Option[T]): Option[T] = (if ?l: some(l) else: r)
- 
-template `?:`*[T](l: Option[T], r: T): T = (if ?l.get(): l.get() else: r)
+  of nnkBracketExpr, nnkDotExpr:
+    let cleanCall = n.copyNimTree()
+    cleanCall[0] = newEmptyNode()
+    result.add cleanCall
+    flattenExpression(n[0], result)
+
+  else:
+    result.add n
+
+proc flattenExpression(n: NimNode): seq[NimNode] =
+  ## Navigates the tree, extracting each step into an expression, returning them
+  case n.kind
+  of nnkCallKinds:
+    if n.len > 1:
+      let cleanCall = n.copyNimTree()
+      case cleanCall[0].kind:
+      of nnkDotExpr:
+        cleanCall[0][0] = newEmptyNode()
+        result.add cleanCall
+        flattenExpression(n[0][0], result)
+      else:
+        cleanCall[1] = newEmptyNode()
+        result.add cleanCall
+        flattenExpression(n[1], result)
+    else:
+      result.add n
+
+  of nnkBracketExpr, nnkDotExpr:
+    let cleanCall = n.copyNimTree()
+    cleanCall[0] = newEmptyNode()
+    result.add cleanCall
+    flattenExpression(n[0], result)
+  else:
+    result.add n
+
+proc replaceCheckedVal(expr, cached: NimNode) =
+  ## Navigates the tree replacing the first Node of concern with the `cached` symbol
+  if cached != nil:
+    case expr.kind
+    of nnkBracketExpr:
+      expr[0] = cached
+    of nnkCallKinds:
+      if expr.len > 1:
+        case expr[0].kind
+        of nnkDotExpr:
+          expr[0][0] = cached
+        else:
+          expr[1] = cached
+    else:
+      discard
+
+proc generateIfExpr(s: seq[NimNode], l, r: NimNode): NimNode =
+  var
+    lastArg: NimNode
+    lastExpr: NimNode
+
+  for i in countDown(s.high, 0): # iterate the flattened expression backwards as each step is one further left
+    let
+      expr = s[i]
+      argName = gensym(nskLet, "TruthyVar")
+    expr.replaceCheckedVal(lastArg)
+
+    let thisExpr =
+      genast(expr, argName, r):
+        let argName = expr
+        if truthy(argName):
+          discard # placerholder rewritten either by next expression or return expression
+        else:
+          r
+    if lastExpr.kind == nnkNilLit:
+      result = thisExpr
+    else:
+      lastExpr[1][0][1] = thisExpr
+
+    lastExpr = thisExpr
+    lastArg = argName
+
+  lastExpr[1][0][1] = genAst(l, r, lastArg): # Mimics the logic used prior
+    when l isnot Option and r is Option:
+      some(lastArg)
+    elif l is Option and r isnot Option:
+      lastArg.get()
+    else:
+      lastArg
+
+  result = genast(result, r):
+    try:
+      # We need to wrap the expression inside a `try` incase an exception is raised.
+      # Since we cache the value expressions that raise exceptions do not go right into `?`.
+      result
+    except CatchableError:
+      r
+
+# return left if truthy otherwise right
+macro `?:`*(l, r: untyped): untyped =
+  if l.kind == nnkInfix and l[0].eqIdent"?:": # We want the left hand evaluated first so make it a stmt list if it's an elvis operator
+    result = newStmtList(newCall("?:", newStmtList(l), r))
+  else:
+    var expr = flattenExpression(l)
+    result = expr.generateIfExpr(l, r)
 
 # Assign only when left is not truthy
 template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
@@ -54,7 +162,7 @@ template `.?`*(left, right: untyped): untyped =
     var tmp = left
     if truthy(tmp): tmp.right
     else: default(typeof(left.right))
-  except: default(typeof(left.right))
+  except CatchableError: default(typeof(left.right))
 
 type Branch[T] = object
   then, other: T
