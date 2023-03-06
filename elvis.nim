@@ -1,4 +1,4 @@
-import options
+import std/[options, macros, genasts]
 
 #true if float not 0 or NaN
 template truthy*(val: float): bool  = (val < 0 or val > 0)
@@ -26,17 +26,105 @@ template truthy*[T](val: seq[T]): bool = (val != @[])
 template truthy*[T](val: Option[T]): bool = isSome(val)
 
 # true if truthy and no exception.
-template `?`*[T](val: T): bool = (try: truthy(val) except: false)
+template `?`*[T](val: T): bool = (try: truthy(val) except CatchableError: false)
 
 template truthy*[T](val: T): bool = not compiles(val.isNil())
 
-# return left if truthy otherwise right
-template `?:`*[T](l: T, r: T): T = (if ?l: l else: r)
 
-# return some left if truthy otherwise right
-template `?:`*[T](l: T, r: Option[T]): Option[T] = (if ?l: some(l) else: r)
- 
-template `?:`*[T](l: Option[T], r: T): T = (if ?l.get(): l.get() else: r)
+proc flattenExpression(n: NimNode, result: var seq[NimNode]) =
+  case n.kind
+  of nnkCallKinds:
+    let cleanCall = n.copyNimTree()
+    case cleanCall[0].kind:
+    of nnkDotExpr:
+      cleanCall[0][0] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[0][0], result)
+    else:
+      cleanCall[1] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[1], result)
+
+  of nnkBracketExpr, nnkDotExpr:
+    let cleanCall = n.copyNimTree()
+    cleanCall[0] = newEmptyNode()
+    result.add cleanCall
+    flattenExpression(n[0], result)
+
+  else:
+    result.add n
+
+proc flattenExpression(n: NimNode): seq[NimNode] =
+  case n.kind
+  of nnkCallKinds:
+    let cleanCall = n.copyNimTree()
+    case cleanCall[0].kind:
+    of nnkDotExpr:
+      cleanCall[0][0] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[0][0], result)
+    else:
+      cleanCall[1] = newEmptyNode()
+      result.add cleanCall
+      flattenExpression(n[1], result)
+
+  of nnkBracketExpr, nnkDotExpr:
+    let cleanCall = n.copyNimTree()
+    cleanCall[0] = newEmptyNode()
+    result.add cleanCall
+    flattenExpression(n[0], result)
+  else:
+    result.add n
+
+proc replaceCheckedVal(expr, cached: NimNode) =
+  if cached != nil:
+    case expr.kind
+    of nnkBracketExpr:
+      expr[0] = cached
+    of nnkCallKinds:
+      case expr[0].kind
+      of nnkDotExpr:
+        expr[0][0] = cached
+      else:
+        expr[1] = cached
+    else:
+      discard
+
+proc generateIfCond(s: seq[NimNode]): (NimNode, NimNode) =
+  # Generates the if condition and retuns the name of the last variable used
+  for i in countDown(s.high, 0):
+    let
+      expr = s[i]
+      argName = gensym(nskLet, "TruthyVar")
+
+    expr.replaceCheckedVal(result[1])
+
+    if result[0].kind == nnkNilLit:
+      result[0] =
+        genast(argName, expr):
+          truthy((let argName = expr; argName))
+    else:
+      result[0] =
+        genast(result = result[0], argName, expr):
+          result and truthy((let argName = expr; argName))
+    result[1] = argName
+
+# return left if truthy otherwise right
+macro `?:`*(l, r: untyped): untyped =
+  result = nnkIfStmt.newTree()
+  var expr = flattenExpression(l)
+  let (cond, lastSym) = expr.generateIfCond()
+  result = genast(l, r, cond, lastSym, opt = bindSym"Option"):
+    if cond:
+      when r is opt:
+        some(lastSym)
+      when lastSym is opt and r isnot opt:
+        lastSym.get()
+      else:
+        lastSym
+    else:
+      r
+  echo result.repr
 
 # Assign only when left is not truthy
 template `?=`*[T](l: T, r: T) = (if not(?l): l = r)
