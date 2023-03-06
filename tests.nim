@@ -103,9 +103,7 @@ suite "elvis number":
 
 
 suite "elvis sequence":
-  #[
   test "empty left": check((seq0 ?: @[1]) == @[1])
-  ]#
   test "good  left": check((@[0] ?: @[1]) == @[0])
 
 suite "elvis except":
