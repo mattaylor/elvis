@@ -1,10 +1,10 @@
 import options
 
 #true if float not 0 or NaN
-template truthy*(val: float): bool  = (val < 0 or val > 0)
+template truthy*(val: SomeFloat): bool  = (val < 0 or val > 0)
 
 #true if int not 0
-template truthy*(val: int): bool  = (val != 0)
+template truthy*(val: SomeInteger): bool  = (val != 0)
 
 #try if char not \0
 template truthy*(val: char): bool = (val != '\0')
